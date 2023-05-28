@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useCallback } from "react";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
@@ -6,7 +7,7 @@ import { toast } from "react-toastify";
 const Records = () => {
   const [reRender, setReRender] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const [editingRecord, setEditingRecord] = useState({});
+  const [setEditingRecord] = useState({});
   const [editIndex, setEditIndex] = useState();
 
   const [records, setRecords] = useState([]);
@@ -14,11 +15,7 @@ const Records = () => {
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState(new Date());
 
-  const addRecord = () => {
-    console.log("adding callback");
-    console.log("Amount", amount);
-    console.log("Description", description);
-
+  const addRecord = useCallback(() => {
     if (amount == "" || description == "") {
       toast.error("Please add amount/description");
       return;
@@ -40,20 +37,20 @@ const Records = () => {
     setAmount("");
     setDescription("");
     setStartDate(new Date());
-  };
+  });
 
-  const editRecord = (index) => {
+  const editRecord = useCallback((index) => {
     setEditing(true);
     const record = records[index];
     setEditingRecord(record);
     setEditIndex(index);
 
     setAmount(record.amount);
-    setStartDate(record.data);
+    setStartDate(record.date);
     setDescription(record.description);
-  };
+  });
 
-  const updateRecord = () => {
+  const updateRecord = useCallback(() => {
     let prevRecords = records;
     prevRecords[editIndex] = {
       amount,
@@ -65,18 +62,18 @@ const Records = () => {
     cancelEditing();
 
     toast("Boom! Record Updated 😎");
-  };
+  });
 
-  const cancelEditing = () => {
+  const cancelEditing = useCallback(() => {
     setEditing(false);
     setEditingRecord({});
     setAmount("");
     setDescription("");
     setStartDate(new Date());
-  };
+  });
 
-  const deleteRecord =
-    ((index) => {
+  const deleteRecord = useCallback(
+    (index) => {
       let prevRecords = records;
       prevRecords.splice(index, 1);
       console.log(prevRecords);
@@ -85,7 +82,8 @@ const Records = () => {
       toast("Record Deleted");
       setReRender(!reRender);
     },
-    [records]);
+    [reRender, records]
+  );
 
   return (
     <div className='container py-2 mx-auto'>
@@ -109,6 +107,7 @@ const Records = () => {
         </label>
         <ReactDatePicker
           selected={startDate}
+          id='date'
           className='p-4 py-2 text-sm border-[#3F3F3F] border-2 w-full mt-3'
           onChange={(date) => setStartDate(date)}
         />
@@ -175,7 +174,6 @@ const Records = () => {
                 <td className='table-cell py-2 px-3'>${record.amount}</td>
                 <td className='table-cell py-2 px-3'>{record.description}</td>
                 <td className='table-cell py-2 px-3'>
-                  A{" "}
                   <button
                     className='p-3 text-xs py-1 bg-[#747BFF] text-white uppercase shadow-md hover:bg-[#3c42b9]'
                     onClick={() => {
